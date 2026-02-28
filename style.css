@@ -1,0 +1,160 @@
+:root {
+    --primary: #2563eb;
+    --success: #10b981;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --card: #ffffff;
+    --text: #334155;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background-color: var(--bg);
+    color: var(--text);
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.container {
+    width: 100%;
+    max-width: 480px;
+    background: var(--card);
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+h1 { text-align: center; color: var(--text); margin-bottom: 2rem; font-size: 1.5rem; }
+
+.input-group { margin-bottom: 1.5rem; }
+label { display: block; font-weight: 700; margin-bottom: 0.5rem; }
+small { display: block; color: #64748b; margin-bottom: 0.5rem; font-size: 0.85rem; }
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 12px;
+    background: #fff;
+}
+
+.input-wrapper span { color: #64748b; font-weight: bold; margin-right: 8px; }
+
+input[type="number"] {
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    font-size: 1.1rem;
+    outline: none;
+}
+
+.input-wrapper:focus-within { border-color: var(--primary); }
+
+/* Switch Toggle Estilo */
+.mode-selector {
+    margin: 20px 0;
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.switch-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.label-text { margin-left: 10px; font-weight: 600; }
+
+input[type="checkbox"] { margin-right: 10px; transform: scale(1.5); accent-color: var(--success); }
+
+button {
+    width: 100%;
+    background-color: var(--text);
+    color: white;
+    border: none;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+button:hover { background-color: #000; }
+
+/* Resultados */
+.result-section { display: none; margin-top: 2rem; }
+
+.result-card {
+    background: #f8fafc;
+    border-left: 5px solid var(--primary);
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+}
+
+.result-card.priority { border-color: var(--danger); background: #fef2f2; }
+.result-card.savings { border-color: var(--success); background: #f0fdf4; }
+
+.amount { font-size: 1.25rem; font-weight: bold; display: block; margin-top: 5px; }
+.desc { font-size: 0.85rem; color: #64748b; }
+
+/* --- NUEVOS ESTILOS PARA CATEGORÍAS DINÁMICAS (Versión anterior) --- */
+.custom-distribution {
+    margin: 20px 0;
+    background: #f1f5f9;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+}
+.category-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
+.category-row input { border: 2px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff; width: auto; }
+.category-row input:focus { border-color: var(--primary); }
+.category-row input[type="text"] { flex: 2; }
+.category-row input[type="number"] { flex: 1; text-align: center; }
+.remove-btn { width: auto; background-color: var(--danger); color: white; padding: 10px 14px; font-size: 0.9rem; margin-top: 0; }
+.remove-btn:hover { background-color: #dc2626; }
+.secondary-btn { background-color: #cbd5e1; color: var(--text); padding: 10px; margin-top: 5px; font-size: 0.9rem; }
+.secondary-btn:hover { background-color: #94a3b8; }
+.warning-text { color: var(--danger); font-size: 0.85rem; margin-top: 10px; text-align: center; font-weight: bold; }
+
+/* --- NUEVOS ESTILOS PARA BOTONES DE ACCIÓN --- */
+.action-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.action-btn {
+    flex: 1;
+    background-color: #f1f5f9;
+    color: var(--text);
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.action-btn:hover {
+    background-color: #e2e8f0;
+}
+
+.action-btn.pic:hover {
+    background-color: #dbeafe;
+    color: var(--primary);
+}
+
+.action-btn.pdf:hover {
+    background-color: #fee2e2;
+    color: var(--danger);
+}
+
+#captureArea {
+    padding: 10px;
+    background: var(--card);
+    border-radius: 8px;
+}
