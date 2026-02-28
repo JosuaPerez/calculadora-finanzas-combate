@@ -146,7 +146,7 @@ function downloadAsImage() {
         const link = document.createElement('a');
         link.href = image;
         link.download = `Plan_Financiero_ModoGuerra_${new Date().toLocaleDateString()}.png`;
-        link.click(); // Hacemos clic programáticamente
+        link.click();
 
         // Restauramos el botón
         botonPic.innerText = "💾 Guardar como Imagen (PNG)";

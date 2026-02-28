@@ -102,7 +102,7 @@ button:hover { background-color: #000; }
 .amount { font-size: 1.25rem; font-weight: bold; display: block; margin-top: 5px; }
 .desc { font-size: 0.85rem; color: #64748b; }
 
-/* --- NUEVOS ESTILOS PARA CATEGORÍAS DINÁMICAS (Versión anterior) --- */
+/* --- NUEVOS ESTILOS PARA CATEGORÍAS DINÁMICAS --- */
 .custom-distribution {
     margin: 20px 0;
     background: #f1f5f9;
