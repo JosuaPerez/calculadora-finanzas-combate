@@ -1,71 +1,79 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calculadora Financiera - Modo Guerra</title>
     <link rel="stylesheet" href="style.css">
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
+
 <body>
 
-<div class="container" id="mainCalculator">
-    <h1>🛡️ Finanzas de Combate</h1>
-    
-    <div class="input-group">
-        <label>1. ¿Cuánto cobraste esta quincena?</label>
-        <div class="input-wrapper">
-            <span>RD$</span>
-            <input type="number" id="income" placeholder="0.00">
-        </div>
-    </div>
+    <div class="container" id="mainCalculator">
+        <h1>🛡️ Finanzas de Combate</h1>
 
-    <div class="input-group">
-        <label>2. ¿Cuánto son tus gastos fijos obligatorios?</label>
-        <small>Casa, comida, luz, internet, gasolina</small>
-        <div class="input-wrapper">
-            <span>RD$</span>
-            <input type="number" id="expenses" placeholder="0.00">
-        </div>
-    </div>
-
-    <div class="mode-selector">
-        <label class="switch-label">
-            <input type="checkbox" id="debtFreeMode">
-            <span class="slider"></span>
-            <span class="label-text">¿Ya pagaste todas tus deudas?</span>
-        </label>
-        <small style="margin-left: 32px; margin-top: 5px;">Esto cargará una plantilla diferente abajo 👇</small>
-    </div>
-
-    <div class="custom-distribution">
-        <label>3. Personaliza tu distribución (%)</label>
-        <small>Ajusta los porcentajes o añade nuevas categorías. (Debe sumar 100%)</small>
-        
-        <div id="categoryContainer">
+        <div class="input-group">
+            <label>1. ¿Cuánto cobraste?</label>
+            <div class="input-wrapper">
+                <span>RD$</span>
+                <input type="number" id="income" placeholder="0.00">
             </div>
-        
-        <button type="button" id="addCategoryBtn" class="secondary-btn">+ Añadir Categoría</button>
-        <div id="percentWarning" class="warning-text"></div>
-    </div>
-
-    <button id="calculateBtn">Calcular Distribución</button>
-
-    <div id="results" class="result-section">
-        <div id="captureArea">
-            <div id="statusMessage"></div>
-            <div id="breakdown"></div>
         </div>
 
-        <div class="action-buttons">
-            <button id="downloadPicBtn" class="action-btn pic">💾 Guardar como Imagen (PNG)</button>
-            <button id="downloadPdfBtn" class="action-btn pdf">📄 Descargar Reporte (PDF)</button>
+        <div class="custom-distribution">
+            <label>2. Desglosa tus Gastos Fijos</label>
+            <small>Casa, comida, luz... Ingresa el monto (RD$).</small>
+
+            <div id="fixedContainer"></div>
+
+            <button type="button" id="addFixedBtn" class="secondary-btn">+ Añadir Gasto Fijo</button>
+            <div class="live-summary">Total Fijos: RD$ <span id="liveFixedTotal">0.00</span> <span class="badge-global"
+                    id="liveFixedPercent">(0% del ingreso)</span></div>
+        </div>
+
+        <div class="mode-selector">
+            <label class="switch-label">
+                <input type="checkbox" id="debtFreeMode">
+                <span class="slider"></span>
+                <span class="label-text">¿Ya pagaste todas tus deudas?</span>
+            </label>
+            <small style="margin-left: 32px; margin-top: 5px;">Esto cargará una plantilla diferente abajo 👇</small>
+        </div>
+
+        <div class="custom-distribution" id="distributionSection">
+            <label>3. Distribuye el Sobrante</label>
+            <small>Ingresa el monto (RD$). Te mostraremos el % que representa.</small>
+
+            <div class="live-summary highlight-box" id="remainingBox">
+                Sobrante disponible: RD$ <span id="liveRemaining">0.00</span>
+            </div>
+
+            <div id="distributionControls">
+                <div id="categoryContainer"></div>
+                <button type="button" id="addCategoryBtn" class="secondary-btn">+ Añadir Categoría</button>
+                <div id="amountWarning" class="warning-text"></div>
+            </div>
+
+            <div id="noSurplusMessage" class="warning-text" style="display: none; font-size: 1rem; margin-top: 15px;">
+            </div>
+        </div>
+
+        <button id="calculateBtn">Generar Reporte Visual</button>
+
+        <div id="results" class="result-section">
+            <div id="captureArea">
+                <div id="statusMessage"></div>
+                <div id="breakdown"></div>
+            </div>
+
+            <div class="action-buttons">
+                <button id="downloadCsvBtn" class="action-btn csv">📊 Exportar a Excel (CSV)</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
+
 </html>

@@ -25,11 +25,29 @@ body {
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-h1 { text-align: center; color: var(--text); margin-bottom: 2rem; font-size: 1.5rem; }
+h1 {
+    text-align: center;
+    color: var(--text);
+    margin-bottom: 2rem;
+    font-size: 1.5rem;
+}
 
-.input-group { margin-bottom: 1.5rem; }
-label { display: block; font-weight: 700; margin-bottom: 0.5rem; }
-small { display: block; color: #64748b; margin-bottom: 0.5rem; font-size: 0.85rem; }
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+small {
+    display: block;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    font-size: 0.85rem;
+}
 
 .input-wrapper {
     display: flex;
@@ -40,7 +58,11 @@ small { display: block; color: #64748b; margin-bottom: 0.5rem; font-size: 0.85re
     background: #fff;
 }
 
-.input-wrapper span { color: #64748b; font-weight: bold; margin-right: 8px; }
+.input-wrapper span {
+    color: #64748b;
+    font-weight: bold;
+    margin-right: 8px;
+}
 
 input[type="number"] {
     width: 100%;
@@ -50,7 +72,9 @@ input[type="number"] {
     outline: none;
 }
 
-.input-wrapper:focus-within { border-color: var(--primary); }
+.input-wrapper:focus-within {
+    border-color: var(--primary);
+}
 
 /* Switch Toggle Estilo */
 .mode-selector {
@@ -66,9 +90,16 @@ input[type="number"] {
     cursor: pointer;
 }
 
-.label-text { margin-left: 10px; font-weight: 600; }
+.label-text {
+    margin-left: 10px;
+    font-weight: 600;
+}
 
-input[type="checkbox"] { margin-right: 10px; transform: scale(1.5); accent-color: var(--success); }
+input[type="checkbox"] {
+    margin-right: 10px;
+    transform: scale(1.5);
+    accent-color: var(--success);
+}
 
 button {
     width: 100%;
@@ -83,10 +114,15 @@ button {
     transition: 0.2s;
 }
 
-button:hover { background-color: #000; }
+button:hover {
+    background-color: #000;
+}
 
 /* Resultados */
-.result-section { display: none; margin-top: 2rem; }
+.result-section {
+    display: none;
+    margin-top: 2rem;
+}
 
 .result-card {
     background: #f8fafc;
@@ -96,30 +132,140 @@ button:hover { background-color: #000; }
     border-radius: 4px;
 }
 
-.result-card.priority { border-color: var(--danger); background: #fef2f2; }
-.result-card.savings { border-color: var(--success); background: #f0fdf4; }
+.result-card.priority {
+    border-color: var(--danger);
+    background: #fef2f2;
+}
 
-.amount { font-size: 1.25rem; font-weight: bold; display: block; margin-top: 5px; }
-.desc { font-size: 0.85rem; color: #64748b; }
+.result-card.savings {
+    border-color: var(--success);
+    background: #f0fdf4;
+}
+
+.amount {
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: block;
+    margin-top: 5px;
+}
+
+.desc {
+    font-size: 0.85rem;
+    color: #64748b;
+}
 
 /* --- NUEVOS ESTILOS PARA CATEGORÍAS DINÁMICAS --- */
 .custom-distribution {
     margin: 20px 0;
-    background: #f1f5f9;
+    background: transparent;
     padding: 15px;
     border-radius: 8px;
     border: 1px dashed #cbd5e1;
 }
-.category-row { display: flex; gap: 10px; margin-bottom: 10px; align-items: center; }
-.category-row input { border: 2px solid #e2e8f0; padding: 10px; border-radius: 8px; font-size: 0.95rem; outline: none; background: #fff; width: auto; }
-.category-row input:focus { border-color: var(--primary); }
-.category-row input[type="text"] { flex: 2; }
-.category-row input[type="number"] { flex: 1; text-align: center; }
-.remove-btn { width: auto; background-color: var(--danger); color: white; padding: 10px 14px; font-size: 0.9rem; margin-top: 0; }
-.remove-btn:hover { background-color: #dc2626; }
-.secondary-btn { background-color: #cbd5e1; color: var(--text); padding: 10px; margin-top: 5px; font-size: 0.9rem; }
-.secondary-btn:hover { background-color: #94a3b8; }
-.warning-text { color: var(--danger); font-size: 0.85rem; margin-top: 10px; text-align: center; font-weight: bold; }
+
+.category-row {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 12px;
+    display: flex;
+    flex-direction: column;
+    /* Pone el título arriba y el resto abajo */
+    gap: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Input del Nombre */
+.category-row input.cat-name {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid #f1f5f9;
+    border-radius: 0;
+    padding: 4px 0 8px 0;
+    font-weight: 700;
+    color: var(--text);
+    box-sizing: border-box;
+    font-size: 1rem;
+    background: transparent;
+    outline: none;
+}
+
+.category-row input.cat-name:focus {
+    border-bottom-color: var(--primary);
+}
+
+/* Contenedor de la parte de abajo (Monto, %, Botón) */
+.row-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.currency-label {
+    color: #64748b;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+/* Input del Monto */
+.category-row input.cat-amount {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    padding: 8px;
+    border-radius: 6px;
+    box-sizing: border-box;
+    min-width: 0;
+    /* ESTO EVITA QUE SE DESBORDE EL CONTENEDOR */
+    font-size: 1rem;
+    outline: none;
+}
+
+.category-row input.cat-amount:focus {
+    border-color: var(--primary);
+}
+
+/* Botón de eliminar más estilizado */
+.remove-btn {
+    background-color: #fee2e2;
+    color: var(--danger);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    width: 30%;
+}
+
+.remove-btn:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+.secondary-btn {
+    background-color: #cbd5e1;
+    color: var(--text);
+    padding: 10px;
+    margin-top: 5px;
+    font-size: 0.9rem;
+}
+
+.secondary-btn:hover {
+    background-color: #94a3b8;
+}
+
+.warning-text {
+    color: var(--danger);
+    font-size: 0.85rem;
+    margin-top: 10px;
+    text-align: center;
+    font-weight: bold;
+}
 
 /* --- NUEVOS ESTILOS PARA BOTONES DE ACCIÓN --- */
 .action-buttons {
@@ -143,18 +289,56 @@ button:hover { background-color: #000; }
     background-color: #e2e8f0;
 }
 
-.action-btn.pic:hover {
-    background-color: #dbeafe;
-    color: var(--primary);
+/* Estilo para el botón de CSV/Excel */
+.action-btn.csv {
+    background-color: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
 }
 
-.action-btn.pdf:hover {
-    background-color: #fee2e2;
-    color: var(--danger);
+.action-btn.csv:hover {
+    background-color: #dcfce7;
+    color: #15803d;
 }
 
 #captureArea {
     padding: 10px;
     background: var(--card);
     border-radius: 8px;
+}
+
+/* Estilos para los cálculos en vivo */
+.percent-badge {
+    background: #e2e8f0;
+    color: #475569;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    min-width: 50px;
+    text-align: center;
+}
+
+.live-summary {
+    margin-top: 15px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--text);
+    text-align: right;
+}
+
+.badge-global {
+    color: #64748b;
+    font-weight: normal;
+    font-size: 0.85rem;
+}
+
+.highlight-box {
+    background: #dbeafe;
+    color: #1e3a8a;
+    padding: 10px;
+    border-radius: 6px;
+    text-align: center;
+    margin-bottom: 15px;
+    border: 1px solid #bfdbfe;
 }

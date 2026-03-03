@@ -1,113 +1,200 @@
 document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('calculateBtn').addEventListener('click', calculateDistribution);
-    document.getElementById('debtFreeMode').addEventListener('change', loadPresets);
-    document.getElementById('addCategoryBtn').addEventListener('click', () => addCategoryRow('', 0));
+    // Escuchar cambios en todo el formulario para cálculos en vivo
+    document.getElementById('mainCalculator').addEventListener('input', updateLiveCalculations);
 
-    // Listeners para los nuevos botones de exportar
-    document.getElementById('downloadPicBtn').addEventListener('click', downloadAsImage);
-    document.getElementById('downloadPdfBtn').addEventListener('click', downloadAsPdf);
+    document.getElementById('calculateBtn').addEventListener('click', generateVisualReport);
+    document.getElementById('debtFreeMode').addEventListener('change', loadDistributionPresets);
 
-    // Cargar la plantilla por defecto al inicio
-    loadPresets();
+    document.getElementById('addFixedBtn').addEventListener('click', () => addRow('fixedContainer', '', ''));
+    document.getElementById('addCategoryBtn').addEventListener('click', () => addRow('categoryContainer', '', ''));
+
+    // NUEVO: Listener para el botón CSV
+    document.getElementById('downloadCsvBtn').addEventListener('click', downloadAsCsv);
+
+    // Cargar plantillas por defecto al inicio
+    loadFixedPresets();
+    loadDistributionPresets();
 });
 
-// --- FUNCIONES DE PERSONALIZACIÓN ---
-function loadPresets() {
+// --- GENERACIÓN DINÁMICA DE FILAS ---
+function loadFixedPresets() {
+    const container = document.getElementById('fixedContainer');
+    container.innerHTML = '';
+    addRow('fixedContainer', 'Casa / Alquiler', '');
+    addRow('fixedContainer', 'Comida / Supermercado', '');
+    addRow('fixedContainer', 'Luz / Servicios', '');
+    addRow('fixedContainer', 'Transporte / Gasolina', '');
+}
+
+function loadDistributionPresets() {
     const isDebtFree = document.getElementById('debtFreeMode').checked;
     const container = document.getElementById('categoryContainer');
     container.innerHTML = '';
 
     if (!isDebtFree) {
-        addCategoryRow('🔥 Abono a Deudas', 75);
-        addCategoryRow('🛡️ Mini Fondo', 15);
-        addCategoryRow('🎮 Ocio / Gustos', 10);
+        addRow('categoryContainer', '🔥 Abono a Deudas', '');
+        addRow('categoryContainer', '🛡️ Mini Fondo', '');
+        addRow('categoryContainer', '🎮 Ocio / Gustos', '');
     } else {
-        addCategoryRow('🚀 Ahorro Mayor', 60);
-        addCategoryRow('📚 Educación', 20);
-        addCategoryRow('😎 Calidad de Vida', 20);
+        addRow('categoryContainer', '🚀 Ahorro Mayor', '');
+        addRow('categoryContainer', '📚 Educación', '');
+        addRow('categoryContainer', '😎 Calidad de Vida', '');
     }
+    updateLiveCalculations();
 }
 
-function addCategoryRow(name, percent) {
-    const container = document.getElementById('categoryContainer');
+// Función universal para agregar filas a cualquier contenedor
+function addRow(containerId, name, amount) {
+    const container = document.getElementById(containerId);
     const row = document.createElement('div');
     row.className = 'category-row';
 
     row.innerHTML = `
-        <input type="text" class="cat-name" placeholder="Nombre (ej. Donación)" value="${name}">
-        <input type="number" class="cat-percent" placeholder="%" value="${percent}" min="0" max="100">
-        <button type="button" class="remove-btn" onclick="this.parentElement.remove()" title="Eliminar">X</button>
+        <input type="text" class="cat-name" placeholder="Concepto (Ej. Luz, Internet)" value="${name}">
+        <div class="row-controls">
+            <span class="currency-label">RD$</span>
+            <input type="number" class="cat-amount" placeholder="0.00" value="${amount}" min="0">
+            <span class="percent-badge">0%</span>
+            <button type="button" class="remove-btn" onclick="this.parentElement.parentElement.remove(); updateLiveCalculations();" title="Eliminar">✖</button>
+        </div>
     `;
     container.appendChild(row);
 }
 
-function calculateDistribution() {
+function updateLiveCalculations() {
     const income = parseFloat(document.getElementById('income').value) || 0;
-    const fixedExpenses = parseFloat(document.getElementById('expenses').value) || 0;
-    
+
+    // 1. Calcular Gastos Fijos
+    let totalFixed = 0;
+    const fixedRows = document.querySelectorAll('#fixedContainer .category-row');
+
+    fixedRows.forEach(row => {
+        const amount = parseFloat(row.querySelector('.cat-amount').value) || 0;
+        totalFixed += amount;
+        const percent = income > 0 ? ((amount / income) * 100).toFixed(1) : 0;
+        row.querySelector('.percent-badge').innerText = `${percent}%`;
+    });
+
+    // Actualizar UI de Gastos Fijos
+    document.getElementById('liveFixedTotal').innerText = formatMoney(totalFixed);
+    const totalFixedPercent = income > 0 ? ((totalFixed / income) * 100).toFixed(1) : 0;
+    document.getElementById('liveFixedPercent').innerText = `(${totalFixedPercent}% del ingreso)`;
+
+    // 2. Calcular Sobrante
+    const remaining = income - totalFixed;
+    const remainingBox = document.getElementById('remainingBox');
+    document.getElementById('liveRemaining').innerText = formatMoney(remaining);
+
+    // --- MOSTRAR/OCULTAR SECCIÓN DE DISTRIBUCIÓN ---
+    const distControls = document.getElementById('distributionControls');
+    const noSurplusMsg = document.getElementById('noSurplusMessage');
+
+    if (remaining <= 0) {
+        // Ocultar controles y mostrar mensaje
+        distControls.style.display = 'none';
+        noSurplusMsg.style.display = 'block';
+
+        // Poner la caja de sobrante en color rojo de alerta
+        remainingBox.style.backgroundColor = '#fef2f2';
+        remainingBox.style.color = '#dc2626';
+        remainingBox.style.borderColor = '#fca5a5';
+
+        if (remaining < 0) {
+            noSurplusMsg.innerHTML = `⚠️ Tus gastos fijos superan tus ingresos por RD$ ${formatMoney(Math.abs(remaining))}.<br>No tienes nada que distribuir.`;
+        }
+    } else {
+        // Mostrar controles y ocultar mensaje
+        distControls.style.display = 'block';
+        noSurplusMsg.style.display = 'none';
+
+        // Restaurar la caja de sobrante a su color azul original
+        remainingBox.style.backgroundColor = '#dbeafe';
+        remainingBox.style.color = '#1e3a8a';
+        remainingBox.style.borderColor = '#bfdbfe';
+    }
+
+    // 3. Calcular Distribución (Solo si hay dinero)
+    let totalDistributed = 0;
+    const distRows = document.querySelectorAll('#categoryContainer .category-row');
+
+    distRows.forEach(row => {
+        const amount = parseFloat(row.querySelector('.cat-amount').value) || 0;
+        totalDistributed += amount;
+        const percent = remaining > 0 ? ((amount / remaining) * 100).toFixed(1) : 0;
+        row.querySelector('.percent-badge').innerText = `${percent}%`;
+    });
+
+    // Validaciones de Distribución Excedida
+    const warningText = document.getElementById('amountWarning');
+    if (remaining > 0 && totalDistributed > remaining) {
+        warningText.innerHTML = `⚠️ Cuidado: Estás distribuyendo RD$ ${formatMoney(totalDistributed - remaining)} más de lo que te sobra.`;
+    } else {
+        warningText.innerHTML = '';
+    }
+}
+
+// --- REPORTE VISUAL FINAL ---
+function generateVisualReport() {
+    updateLiveCalculations(); // Asegurar datos frescos
+
+    const income = parseFloat(document.getElementById('income').value) || 0;
     const container = document.getElementById('breakdown');
     const statusMsg = document.getElementById('statusMessage');
     const resultSection = document.getElementById('results');
-    const warningText = document.getElementById('percentWarning');
 
     container.innerHTML = '';
-    warningText.innerHTML = '';
 
     if (income <= 0) {
-        alert("Por favor ingresa un ingreso válido.");
+        alert("Por favor ingresa un ingreso válido para generar el reporte.");
         return;
     }
 
-    const remainingCapital = income - fixedExpenses;
+    // Recopilar Gastos Fijos
+    let totalFixed = 0;
+    document.querySelectorAll('#fixedContainer .category-row').forEach(row => {
+        totalFixed += parseFloat(row.querySelector('.cat-amount').value) || 0;
+    });
 
+    const remaining = income - totalFixed;
+
+    // Tarjeta Maestra de Gastos Fijos
     let html = `
         <div class="result-card" style="border-left-color: #64748b;">
-            <div>🏠 Gastos Fijos (Intocable)</div>
-            <span class="amount">RD$ ${formatMoney(fixedExpenses)}</span>
-            <div class="desc">Para la casa y servicios básicos</div>
+            <div>🏠 Gastos Fijos Consolidados</div>
+            <span class="amount">RD$ ${formatMoney(totalFixed)}</span>
+            <div class="desc">Suma de casa, comida y servicios.</div>
         </div>
     `;
 
-    if (remainingCapital <= 0) {
-        statusMsg.innerHTML = `<h3 style="color: red; text-align: center;">⚠️ Cuidado: Tus gastos superan o igualan tus ingresos.</h3>`;
+    if (remaining <= 0) {
+        statusMsg.innerHTML = `<h3 style="color: red; text-align: center;">⚠️ Alerta de Supervivencia: No hay capital libre.</h3>`;
         container.innerHTML = html;
         resultSection.style.display = 'block';
         return;
     }
 
-    statusMsg.innerHTML = `<h3 style="text-align: center; color: #2563eb;">Tienes RD$ ${formatMoney(remainingCapital)} libres para distribuir:</h3>`;
+    statusMsg.innerHTML = `<h3 style="text-align: center; color: #2563eb;">Plan de Distribución (Sobrante: RD$ ${formatMoney(remaining)})</h3>`;
 
-    const rows = document.querySelectorAll('.category-row');
-    let totalPercent = 0;
-    let categories = [];
-
-    rows.forEach(row => {
+    // Recopilar Distribución
+    document.querySelectorAll('#categoryContainer .category-row').forEach(row => {
         const name = row.querySelector('.cat-name').value || 'Otros';
-        const percent = parseFloat(row.querySelector('.cat-percent').value) || 0;
-        totalPercent += percent;
-        categories.push({ name, percent });
-    });
+        const amount = parseFloat(row.querySelector('.cat-amount').value) || 0;
+        const percentStr = row.querySelector('.percent-badge').innerText;
 
-    if (totalPercent !== 100) {
-        warningText.innerHTML = `⚠️ Atención: Tus porcentajes suman ${totalPercent}%. Lo ideal es 100% para distribuir el capital exactamente.`;
-    }
-
-    categories.forEach(cat => {
-        if (cat.percent > 0) {
-            const amount = remainingCapital * (cat.percent / 100);
+        if (amount > 0) {
             let borderColor = "var(--primary)";
             let bgClass = "";
-            let nameLower = cat.name.toLowerCase();
+            let nameLower = name.toLowerCase();
 
-            if (nameLower.includes('deuda') || nameLower.includes('préstamo')) {
+            if (nameLower.includes('deuda') || nameLower.includes('préstamo') || nameLower.includes('abono')) {
                 borderColor = "var(--danger)"; bgClass = "priority";
-            } else if (nameLower.includes('ahorro') || nameLower.includes('fondo') || nameLower.includes('inversión')) {
+            } else if (nameLower.includes('ahorro') || nameLower.includes('fondo') || nameLower.includes('educación')) {
                 borderColor = "var(--success)"; bgClass = "savings";
             }
 
             html += `
                 <div class="result-card ${bgClass}" style="border-left-color: ${borderColor};">
-                    <div>${cat.name} (${cat.percent}%)</div>
+                    <div>${name} (${percentStr})</div>
                     <span class="amount">RD$ ${formatMoney(amount)}</span>
                 </div>
             `;
@@ -122,83 +209,58 @@ function formatMoney(amount) {
     return amount.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// --- NUEVAS FUNCIONES PARA EXPORTAR ---
+function downloadAsCsv() {
+    let csvLines = [];
 
-// 1. Guardar como Imagen PNG
-function downloadAsImage() {
-    const areaCaptura = document.getElementById('captureArea');
-    const botonPic = document.getElementById('downloadPicBtn');
+    // 1. Crear los encabezados de las columnas
+    csvLines.push("Tipo,Concepto,Monto (RD$),Porcentaje");
 
-    botonPic.innerText = "⏳ Generando Imagen...";
-    botonPic.disabled = true;
+    // 2. Agregar el Ingreso
+    const income = parseFloat(document.getElementById('income').value) || 0;
+    csvLines.push(`Ingreso,Quincena Total,${income},100%`);
 
-    // Usamos html2canvas para convertir el HTML en un Canvas (imagen)
-    html2canvas(areaCaptura, {
-        backgroundColor: "#ffffff",
-        scale: 2,
-        logging: false,
-        useCORS: true
-    }).then(canvas => {
-        // Convertimos el canvas a una URL de imagen base64
-        const image = canvas.toDataURL("image/png");
-        
-        // Creamos un enlace temporal "fantasma" para forzar la descarga
-        const link = document.createElement('a');
-        link.href = image;
-        link.download = `Plan_Financiero_ModoGuerra_${new Date().toLocaleDateString()}.png`;
-        link.click();
+    // 3. Agregar los Gastos Fijos
+    const fixedRows = document.querySelectorAll('#fixedContainer .category-row');
+    let totalFixed = 0;
+    fixedRows.forEach(row => {
+        let name = row.querySelector('.cat-name').value || 'Gasto Fijo';
+        name = name.replace(/,/g, ''); // Quitamos comas para que no rompa el CSV
 
-        // Restauramos el botón
-        botonPic.innerText = "💾 Guardar como Imagen (PNG)";
-        botonPic.disabled = false;
+        const amount = parseFloat(row.querySelector('.cat-amount').value) || 0;
+        const percent = row.querySelector('.percent-badge').innerText;
+
+        totalFixed += amount;
+        csvLines.push(`Gasto Fijo,${name},${amount},${percent}`);
     });
-}
 
-// 2. Guardar como Reporte PDF
-function downloadAsPdf() {
-    // jspdf requiere acceder a uMD
-    const { jsPDF } = window.jspdf;
-    const areaCaptura = document.getElementById('captureArea');
-    const botonPdf = document.getElementById('downloadPdfBtn');
+    // 4. Agregar la fila de Resumen (Sobrante)
+    const remaining = income - totalFixed;
+    csvLines.push(`Resumen,Sobrante Disponible,${remaining},-`);
 
-    botonPdf.innerText = "⏳ Generando PDF...";
-    botonPdf.disabled = true;
+    // 5. Agregar la Distribución (Ahorros, Deudas, etc.)
+    const distRows = document.querySelectorAll('#categoryContainer .category-row');
+    distRows.forEach(row => {
+        let name = row.querySelector('.cat-name').value || 'Distribucion';
+        name = name.replace(/,/g, '');
 
-    // Primero tomamos la captura con html2canvas
-    html2canvas(areaCaptura, {
-        scale: 2, logging: false
-    }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        
-        // Creamos documento PDF (Orientación vertical 'p', milímetros 'mm', tamaño A4)
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        
-        // Calculamos dimensiones para que la imagen quepa en el PDF manteniendo proporción
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        
-        const finalWidth = imgWidth * ratio - 20;
-        const finalHeight = imgHeight * ratio;
+        const amount = parseFloat(row.querySelector('.cat-amount').value) || 0;
+        const percent = row.querySelector('.percent-badge').innerText;
 
-        // Añadimos un título de cabecera al PDF
-        pdf.setFontSize(18);
-        pdf.setTextColor(37, 99, 235);
-        pdf.text("Reporte de Distribución Quincenal", 10, 15);
-        pdf.setFontSize(10);
-        pdf.setTextColor(100, 116, 139); // Gris
-        pdf.text(`Generado el: ${new Date().toLocaleString('es-DO')}`, 10, 22);
-
-        // Insertamos la imagen capturada dentro del PDF
-        pdf.addImage(imgData, 'PNG', 10, 30, finalWidth, finalHeight);
-        
-        // Descargamos el archivo
-        pdf.save(`Reporte_ModoGuerra_${new Date().toISOString().slice(0,10)}.pdf`);
-
-        // Restauramos el botón
-        botonPdf.innerText = "📄 Descargar Reporte (PDF)";
-        botonPdf.disabled = false;
+        csvLines.push(`Distribucion,${name},${amount},${percent}`);
     });
+
+    // 6. Generar el archivo y forzar la descarga
+    const csvString = csvLines.join("\n");
+    // El "\uFEFF" asegura que Excel lea correctamente los acentos (UTF-8 con BOM)
+    const blob = new Blob(["\uFEFF" + csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    // Nombre del archivo con la fecha actual
+    link.download = `Presupuesto_${new Date().toISOString().slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
